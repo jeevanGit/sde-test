@@ -15,7 +15,7 @@ public class CalculateService {
     private static List<GenericBond> corporateBondsList = new ArrayList<>();
 
     private static void separateBondsBasedOnCategory(GenericBond[] genericBonds) {
-
+        System.out.println("Separate the bonds by type");
         Stream.of(genericBonds).filter(CalculateService::checkDataSanity).forEach(bond -> {
             if(bond.getType().equalsIgnoreCase(BondType.GOVERNMENT.getStrValue())){
                 governmentBondList.add(bond);
@@ -27,13 +27,13 @@ public class CalculateService {
 
     public static List<Spread> calculateSpread(GenericBond[] genericBonds) {
         separateBondsBasedOnCategory(genericBonds);
-        System.out.println(corporateBondsList.size());
+        System.out.println("Calculating the spread");
 
         List<Spread> spreadCollection = corporateBondsList.stream().map(corBond -> {
             Spread spread = new Spread();
 
             // initialize value
-            Float selectedTenorGap = new Float(9999);
+            Float selectedTenorGap = 9999f;
 
             /**
                 Iterate through government bonds to check for
@@ -44,13 +44,13 @@ public class CalculateService {
             for(GenericBond govBond : governmentBondList ) {
                 float calculatedTenorGap = calculateTenorGap(corBond.getTenor(), govBond.getTenor());
 
-                if (calculatedTenorGap < selectedTenorGap) {
+                if (calculatedTenorGap < selectedTenorGap) { // find the closest tenor gap
                     spread.setCorporate_bond_id(corBond.getId());
                     spread.setGovernment_bond_id(govBond.getId());
                     spread.setSpread_to_benchmark(calculatedYield(corBond.getYield(), govBond.getYield()));
                     selectedTenorGap = calculatedTenorGap;
                 } else if (calculatedTenorGap == selectedTenorGap) { // When equal check for the outstanding amount
-                    if (Integer.valueOf(govBond.getAmount_outstanding()) > Integer.valueOf(corBond.getAmount_outstanding())) {
+                    if (govBond.getAmount_outstanding() > corBond.getAmount_outstanding()) {
                         spread.setCorporate_bond_id(corBond.getId());
                         spread.setGovernment_bond_id(govBond.getId());
                         spread.setSpread_to_benchmark(calculatedYield(corBond.getYield(), govBond.getYield()));

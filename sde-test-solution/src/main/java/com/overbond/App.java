@@ -6,9 +6,8 @@ package com.overbond;
 import com.overbond.entities.*;
 import com.overbond.services.CalculateService;
 import com.overbond.services.OutputService;
-import com.overbond.services.ReadInputService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.overbond.services.InputService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,21 +18,21 @@ import java.util.List;
  */
 public class App {
 
-    private static List<GovernmentBond> governmentBonds;
-    private static List<CorporateBond> corporateBonds;
-
-    public String getGreeting() {
-        return "Hello world.";
-    }
 
     public static void main(String[] args) {
 
+
+        if(args.length <= 1){
+            System.out.println("Empty arguments");
+            return;
+        }
+
         try{
-            GenericBond[] genericBonds = ReadInputService.readDataFromSource(args[0]);
+            GenericBond[] genericBonds = InputService.readDataFromSource(args[0]);
             List<Spread> spreads = CalculateService.calculateSpread(genericBonds);
             OutputService.printOutputToSpecifiedPath(spreads, args[1]);
         } catch (IOException e) {
-            System.out.println("Error reading/writingto file" + e);
+            System.out.println("Error reading/writing to file " + e);
         }
 
     }

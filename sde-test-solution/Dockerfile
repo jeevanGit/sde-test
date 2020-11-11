@@ -6,8 +6,6 @@ CMD ["mkdir", "/submission/input_data"]
 
 CMD ["mkdir", "/submission/output_data"]
 
-CMD ["gradlew", "build"]
-
 WORKDIR /submission
 
 #For Test
