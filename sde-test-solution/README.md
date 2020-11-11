@@ -19,3 +19,8 @@ and the calculate service.
 `
 
 eg: `docker run -it -v /Users/jeevanvarughese/Documents/j_Interview/sde-test/sde-test-solution:/submission/input_data  -v /Users/jeevanvarughese/output:/submission/output_data  spread-calculator:v2 ./input_data/sample_input.json ./output_data/final_output1.json`
+
+## Published in dockerhub
+The image needs to be directly used. The following images can be downloaded from Dockerhub 
+and then used.
+- `thefenns/spread-calculator:v2`
