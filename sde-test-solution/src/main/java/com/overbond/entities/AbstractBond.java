@@ -1,5 +1,8 @@
 package com.overbond.entities;
 
+/**
+ *  Abstract class that inherits all the properties
+ */
 public class AbstractBond {
 
     private String id;

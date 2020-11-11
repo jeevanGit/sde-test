@@ -8,22 +8,23 @@ import com.overbond.services.CalculateService;
 import com.overbond.services.OutputService;
 import com.overbond.services.InputService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 /*
-    Since this is a command line utility, we will be sticking to standard out.
-    However, the loggers are wired in for future extensions.
+    Entry point of the program
  */
 public class App {
-
+    private static Logger logger = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
 
-
+        // Don't execute if there is less argument
         if(args.length <= 1){
-            System.out.println("Empty arguments");
+            logger.info("Empty arguments");
             return;
         }
 
@@ -32,7 +33,7 @@ public class App {
             List<Spread> spreads = CalculateService.calculateSpread(genericBonds);
             OutputService.printOutputToSpecifiedPath(spreads, args[1]);
         } catch (IOException e) {
-            System.out.println("Error reading/writing to file " + e);
+            logger.error("Error reading/writing to file ", e);
         }
 
     }

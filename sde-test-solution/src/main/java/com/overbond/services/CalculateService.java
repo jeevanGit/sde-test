@@ -3,6 +3,8 @@ package com.overbond.services;
 import com.overbond.entities.*;
 import com.overbond.utilities.BondType;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.ArrayList;
@@ -11,11 +13,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CalculateService {
+    private static Logger logger = LoggerFactory.getLogger(CalculateService.class);
     private static List<GenericBond> governmentBondList = new ArrayList<>();
     private static List<GenericBond> corporateBondsList = new ArrayList<>();
 
+    /*
+        Separate the bonds into two separate list
+     */
     private static void separateBondsBasedOnCategory(GenericBond[] genericBonds) {
-        System.out.println("Separate the bonds by type");
+
+        logger.info("Separate the bond by type");
+
+        // Filter and separate
         Stream.of(genericBonds).filter(CalculateService::checkDataSanity).forEach(bond -> {
             if(bond.getType().equalsIgnoreCase(BondType.GOVERNMENT.getStrValue())){
                 governmentBondList.add(bond);
@@ -25,17 +34,24 @@ public class CalculateService {
         });
     }
 
+    /**
+     * Calculate the spread based on
+     * 1. closest tenor
+     * 2. amount outstanding
+     * @param genericBonds : takes a list of generic bonds
+     * @return
+     */
     public static List<Spread> calculateSpread(GenericBond[] genericBonds) {
         separateBondsBasedOnCategory(genericBonds);
-        System.out.println("Calculating the spread");
 
+        logger.info("Calculating the spread");
         List<Spread> spreadCollection = corporateBondsList.stream().map(corBond -> {
             Spread spread = new Spread();
 
             // initialize value
             Float selectedTenorGap = 9999f;
 
-            /**
+            /*
                 Iterate through government bonds to check for
                 1. closest tenor
                 2. amount outstanding
@@ -67,31 +83,33 @@ public class CalculateService {
         return spreadCollection;
     }
 
+    // Modify the string and calculate the gap
     private static float calculateTenorGap(String corporate, String government)  {
         float result = 9999;
         if(StringUtils.isNoneBlank(corporate) && StringUtils.isNoneBlank(government)) {
             result = Math.abs(Float.valueOf(corporate.split(" ")[0]) - Float.valueOf(government.split(" ")[0]));
 
         } else {
-            System.out.println("ERROR: Invalid values passed for Tenor Calculation");
+            logger.error("ERROR: Invalid values passed for Tenor Calculation");
         }
 
         return result;
     }
 
 
+    // Calculate the yeild, after converting the string
     private static String calculatedYield(String corporate, String government) {
         float result = 9999;
         if(StringUtils.isNoneBlank(corporate) && StringUtils.isNoneBlank(government)) {
             result = Math.abs(Float.valueOf(corporate.split("%")[0]) - Float.valueOf(government.split("%")[0]));
 
         } else {
-            System.out.println("ERROR: Invalid values passed calculation of yield.");
+            logger.error("Invalid values passed calculation of yield.");
         }
         return (int)(result * 100) + " bps";
     }
 
-    //TODO: Handle a few cases here
+    //TODO: Handle a few more cases here
     private static boolean checkDataSanity(GenericBond bond) {
         if( StringUtils.isNoneEmpty(bond.getId()) && StringUtils.isNoneEmpty(bond.getTenor()) &&
                 StringUtils.isNoneEmpty(bond.getType()) && StringUtils.isNoneEmpty(bond.getYield()) &&
